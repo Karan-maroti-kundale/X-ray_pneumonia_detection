@@ -6,6 +6,7 @@ import tensorflow as tf
 import io
 import os
 import matplotlib
+import requests
 
 # =====================
 # Suppress Warnings
@@ -19,9 +20,29 @@ matplotlib.use('Agg')  # non-GUI backend
 app = Flask(__name__)
 
 # =====================
-# Load Model
+# Model Setup
 # =====================
-MODEL_PATH = os.path.join("models", "medical_ai_model.keras")  # model inside models/ folder
+MODEL_FOLDER = "models"
+MODEL_FILENAME = "medical_ai_model.keras"
+MODEL_PATH = os.path.join(MODEL_FOLDER, MODEL_FILENAME)
+
+# Dropbox direct download link (dl=1)
+MODEL_URL = "https://www.dropbox.com/scl/fi/tztitbkvl5qvftf8etevd/medical_ai_model.keras?rlkey=wimdr9c6g4y298k49icpqv7p9&dl=1"
+
+# Create models folder if it doesn't exist
+os.makedirs(MODEL_FOLDER, exist_ok=True)
+
+# Download model if not present
+if not os.path.exists(MODEL_PATH):
+    print("Downloading model from Dropbox...")
+    r = requests.get(MODEL_URL, stream=True)
+    with open(MODEL_PATH, "wb") as f:
+        for chunk in r.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+    print("Model downloaded successfully.")
+
+# Load the model
 model = load_model(MODEL_PATH)
 model.make_predict_function()
 
