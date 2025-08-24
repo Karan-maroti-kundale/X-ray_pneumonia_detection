@@ -1,0 +1,20 @@
+# Python cache and environment
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+.env
+
+# VS Code settings
+.vscode/
+
+# best_model.keras
+# medical_ai_model.keras
+*.mp4
+
+# Dataset folders
+train/
+test/
+
+To activate this project.txt
