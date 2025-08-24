@@ -1,1 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical AI - Pneumonia Detection</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <!-- AOS (Animate on Scroll) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+        }
+
+        .container {
+            padding-top: 80px;
+        }
+
+        .upload-box {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .upload-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .custom-file-upload {
+            border: 2px dashed #42a5f5;
+            display: inline-block;
+            padding: 40px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .custom-file-upload:hover {
+            background: #e3f2fd;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        #preview {
+            margin-top: 20px;
+            max-width: 100%;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .loader {
+            display: none;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #42a5f5;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 0.8s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .result-card {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .result-normal {
+            background: #43a047;
+        }
+
+        .result-pneumonia {
+            background: #e53935;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1 class="text-center mb-4 animate__animated animate__fadeInDown">🩺 AI-Powered Pneumonia Detection</h1>
+        <p class="text-center text-muted animate__animated animate__fadeIn">Upload a Chest X-ray and let AI detect if
+            it’s <b>Normal</b> or <b>Pneumonia</b>.</p>
+
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="upload-box" data-aos="zoom-in">
+                    <label class="custom-file-upload">
+                        <input type="file" id="fileInput" accept="image/*">
+                        📤 Click to Upload X-ray
+                    </label>
+                    <img id="preview" alt="Image Preview">
+                    <button id="predictBtn" class="btn btn-primary w-100 mt-3" disabled>🔍 Predict</button>
+                    <div class="loader" id="loader"></div>
+                    <div id="result" class="result-card text-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS JS -->
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        AOS.init();
+
+        const fileInput = document.getElementById("fileInput");
+        const preview = document.getElementById("preview");
+        const predictBtn = document.getElementById("predictBtn");
+        const loader = document.getElementById("loader");
+        const resultCard = document.getElementById("result");
+
+        fileInput.addEventListener("change", () => {
+            const file = fileInput.files[0];
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = "block";
+                predictBtn.disabled = false;
+            }
+        });
+
+        predictBtn.addEventListener("click", () => {
+            const file = fileInput.files[0];
+            if (!file) return alert("Please upload an image!");
+
+            loader.style.display = "block";
+            resultCard.style.display = "none";
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            fetch("/predict", {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    loader.style.display = "none";
+                    resultCard.style.display = "block";
+
+                    if (data.prediction === "Normal") {
+                        resultCard.className = "result-card result-normal";
+                    } else {
+                        resultCard.className = "result-card result-pneumonia";
+                    }
+                    resultCard.innerHTML = `<h3>${data.message}</h3><p>Confidence: ${(data.score * 100).toFixed(2)}%</p>`;
+                })
+                .catch(err => {
+                    loader.style.display = "none";
+                    alert("Error: " + err);
+                });
+        });
+    </script>
+</body>
+
+</html>
