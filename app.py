@@ -5,16 +5,23 @@ import numpy as np
 import tensorflow as tf
 import io
 import os
+import matplotlib
 
-# Suppress TensorFlow warnings
+# =====================
+# Suppress Warnings
+# =====================
 tf.get_logger().setLevel('ERROR')
+matplotlib.use('Agg')  # non-GUI backend
 
+# =====================
+# Flask App
+# =====================
 app = Flask(__name__)
 
 # =====================
 # Load Model
 # =====================
-MODEL_PATH = r"E:\Project_File_PDF\X-ray_pnemonia_detection\medical_ai_model.keras"
+MODEL_PATH = os.path.join("models", "medical_ai_model.keras")  # model inside models/ folder
 model = load_model(MODEL_PATH)
 model.make_predict_function()
 
@@ -32,7 +39,7 @@ def prepare_image(file):
 # =====================
 @app.route('/')
 def index():
-    return render_template("index.html")  # This will serve your frontend
+    return render_template("index.html")  # Serve your frontend HTML
 
 # =====================
 # Prediction API
@@ -61,4 +68,5 @@ def predict():
 # Run Server
 # =====================
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    port = int(os.environ.get("PORT", 5000))  # Use Render's PORT if available
+    app.run(host='0.0.0.0', port=port, debug=False)
