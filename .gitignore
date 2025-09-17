@@ -11,10 +11,11 @@ __pycache__/
 
 # best_model.keras
 # medical_ai_model.keras
-*.mp4
+
 
 # Dataset folders
 train/
 test/
+
 
 To activate this project.txt
