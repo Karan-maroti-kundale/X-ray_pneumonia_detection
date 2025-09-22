@@ -44,43 +44,6 @@ Companies like **Google, Adobe, NVIDIA, and Meta** are exploring real-time image
 
 ---
 
-## 📁 Demo
+🎬 Try it yourself here:- 👉[https://real-time-image-to-sketch-animation.streamlit.app/]
 
-- **Input Image:** `Demo_input.jpg`  
-- **Output Sketch:** `Demo_output.jpg`  
-- **Animation GIF:** `sketch_animation.gif`  
-
-![Demo GIF](Demo_output.jpg) <!-- Replace with actual GIF if available -->
-
----
-
-## 🚀 How to Run Locally
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/Karan-maroti-kundale/Real-time-image-to-sketch-Animation.git
-cd Real-time-image-to-sketch-Animation
-Create a virtual environment
-
-bash
-Copy code
-python -m venv venv
-# On Linux/Mac
-source venv/bin/activate
-# On Windows
-venv\Scripts\activate
-Install dependencies
-
-bash
-Copy code
-pip install -r requirements.txt
-Run the Streamlit app
-
-bash
-Copy code
-streamlit run sketch_animation.py
-🌐 Live Demo
-Try it online: Real-time Image to Sketch Animation
-
-📥 Download
-You can download the animated GIF directly from the app after processing your image.`
+fter processing your image.`
