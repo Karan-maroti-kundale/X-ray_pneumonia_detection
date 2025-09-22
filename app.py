@@ -25,7 +25,7 @@ MODEL_FILENAME = "best_model.keras"
 MODEL_PATH = os.path.join(MODEL_FOLDER, MODEL_FILENAME)
 
 # Hugging Face repo info
-MODEL_REPO = "karankundale/pneumonia-model"
+MODEL_REPO = "karankundale/model"
 MODEL_FILE = "best_model.keras"
              # <-- model file in HF repo
 
@@ -91,3 +91,4 @@ def predict():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 4000))
     app.run(host='0.0.0.0', port=port, debug=False)
+
