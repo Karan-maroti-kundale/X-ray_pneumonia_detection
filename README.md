@@ -45,5 +45,3 @@ Companies like **Google, Adobe, NVIDIA, and Meta** are exploring real-time image
 ---
 
 🎬 Try it yourself here:- 👉[https://real-time-image-to-sketch-animation.streamlit.app/]
-
-fter processing your image.`
