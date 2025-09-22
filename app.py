@@ -5,14 +5,12 @@ import numpy as np
 import tensorflow as tf
 import io
 import os
-import matplotlib
-import requests
+from huggingface_hub import hf_hub_download
 
 # =====================
 # Suppress Warnings
 # =====================
 tf.get_logger().setLevel('ERROR')
-matplotlib.use('Agg')  # non-GUI backend
 
 # =====================
 # Flask App
@@ -23,23 +21,21 @@ app = Flask(__name__)
 # Model Setup
 # =====================
 MODEL_FOLDER = "models"
-MODEL_FILENAME = "medical_ai_model.keras"
+MODEL_FILENAME = "best_model.keras"
 MODEL_PATH = os.path.join(MODEL_FOLDER, MODEL_FILENAME)
 
-# Dropbox direct download link (dl=1)
-MODEL_URL = "https://www.dropbox.com/scl/fi/tztitbkvl5qvftf8etevd/medical_ai_model.keras?rlkey=wimdr9c6g4y298k49icpqv7p9&dl=1"
+# Hugging Face repo info
+MODEL_REPO = "karankundale/pneumonia-model"
+MODEL_FILE = "best_model.keras"
+             # <-- model file in HF repo
 
 # Create models folder if it doesn't exist
 os.makedirs(MODEL_FOLDER, exist_ok=True)
 
 # Download model if not present
 if not os.path.exists(MODEL_PATH):
-    print("Downloading model from Dropbox...")
-    r = requests.get(MODEL_URL, stream=True)
-    with open(MODEL_PATH, "wb") as f:
-        for chunk in r.iter_content(chunk_size=8192):
-            if chunk:
-                f.write(chunk)
+    print("Downloading model from Hugging Face...")
+    MODEL_PATH = hf_hub_download(repo_id=MODEL_REPO, filename=MODEL_FILE)
     print("Model downloaded successfully.")
 
 # Load the model
@@ -50,7 +46,9 @@ model.make_predict_function()
 # Image Preprocessing
 # =====================
 def prepare_image(file):
-    img = image.load_img(io.BytesIO(file.read()), target_size=(254, 254))
+    # Ensure this size matches your trained model input
+    img_size = (224, 224)
+    img = image.load_img(io.BytesIO(file.read()), target_size=img_size)
     img_array = image.img_to_array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
     return img_array
@@ -60,7 +58,7 @@ def prepare_image(file):
 # =====================
 @app.route('/')
 def index():
-    return render_template("index.html")  # Serve your frontend HTML
+    return render_template("index.html")  # Serve your HTML frontend
 
 # =====================
 # Prediction API
@@ -76,6 +74,8 @@ def predict():
 
     file.stream.seek(0)
     img_array = prepare_image(file)
+    
+    # Prediction
     prediction = model.predict(img_array)[0][0]
     result = "Pneumonia" if prediction >= 0.5 else "Normal"
 
@@ -89,6 +89,5 @@ def predict():
 # Run Server
 # =====================
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 4000))  # Use Render's PORT if available
+    port = int(os.environ.get("PORT", 4000))
     app.run(host='0.0.0.0', port=port, debug=False)
-
