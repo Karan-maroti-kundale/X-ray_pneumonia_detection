@@ -7,3 +7,6 @@ flask
 gunicorn
 pillow
 requests
+streamlit
+huggingface_hub
+
