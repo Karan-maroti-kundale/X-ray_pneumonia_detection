@@ -27,7 +27,6 @@ MODEL_PATH = os.path.join(MODEL_FOLDER, MODEL_FILENAME)
 # Hugging Face repo info
 MODEL_REPO = "karankundale/model"
 MODEL_FILE = "best_model.keras"
-             # <-- model file in HF repo
 
 # Create models folder if it doesn't exist
 os.makedirs(MODEL_FOLDER, exist_ok=True)
@@ -35,10 +34,15 @@ os.makedirs(MODEL_FOLDER, exist_ok=True)
 # Download model if not present
 if not os.path.exists(MODEL_PATH):
     print("Downloading model from Hugging Face...")
-    MODEL_PATH = hf_hub_download(repo_id=MODEL_REPO, filename=MODEL_FILE)
+    MODEL_PATH = hf_hub_download(
+        repo_id=MODEL_REPO,
+        filename=MODEL_FILE,
+        token=os.environ.get("HF_TOKEN"),  # Add HF_TOKEN env variable if private repo
+        repo_type="model"
+    )
     print("Model downloaded successfully.")
 
-# Load the model
+# Load the model (CPU only)
 model = load_model(MODEL_PATH)
 model.make_predict_function()
 
@@ -46,8 +50,7 @@ model.make_predict_function()
 # Image Preprocessing
 # =====================
 def prepare_image(file):
-    # Ensure this size matches your trained model input
-    img_size = (224, 224)
+    img_size = (224, 224)  # Match your training size
     img = image.load_img(io.BytesIO(file.read()), target_size=img_size)
     img_array = image.img_to_array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
@@ -58,7 +61,7 @@ def prepare_image(file):
 # =====================
 @app.route('/')
 def index():
-    return render_template("index.html")  # Serve your HTML frontend
+    return render_template("index.html")
 
 # =====================
 # Prediction API
@@ -74,7 +77,7 @@ def predict():
 
     file.stream.seek(0)
     img_array = prepare_image(file)
-    
+
     # Prediction
     prediction = model.predict(img_array)[0][0]
     result = "Pneumonia" if prediction >= 0.5 else "Normal"
@@ -91,4 +94,3 @@ def predict():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 4000))
     app.run(host='0.0.0.0', port=port, debug=False)
-
