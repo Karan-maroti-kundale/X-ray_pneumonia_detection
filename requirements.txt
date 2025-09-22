@@ -1,12 +1,6 @@
-tensorflow
-keras
-numpy
-matplotlib
-scikit-learn
 flask
 gunicorn
+tensorflow
+numpy
 pillow
-requests
-streamlit
 huggingface_hub
-
